@@ -1,0 +1,1 @@
+    - Bot reactions and messages are now embeds
