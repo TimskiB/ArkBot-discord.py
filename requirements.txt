@@ -1,0 +1,5 @@
+APScheduler==3.8.1
+db==0.1.1
+discord==1.7.3
+discord.py==1.7.3
+aiosqlite==0.17.0
