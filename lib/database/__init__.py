@@ -1,2 +1,2 @@
-from . import db
-db.build()
+from . import database
+database.build()

@@ -1,0 +1,8 @@
+# await self.log_channel.send("🔓 Bot is up from development...")
+            # embed = Embed(title="Bot is online", description="Mate is currently running", timestamp=datetime.utcnow())
+            # embed.add_field(name="Change-log", value=read_changelog(), inline=True)
+            #
+            # user = self.get_user(383641902441824259)
+            # profilePicture = user.avatar_url
+            # embed.set_author(name="@Timski", icon_url=profilePicture)
+            # await self.log_channel.send(embed=embed)
