@@ -10,10 +10,6 @@ class Fun(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command()
-    async def ping(self, ctx):
-        await ctx.send('Hi There! The ping is {0}'.format(self.bot.latency))
-
     @command(name="say", aliases=["announce"])
     async def announce(self, ctx, *, announcement):
         await ctx.message.delete()

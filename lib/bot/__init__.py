@@ -1,7 +1,7 @@
 from asyncio import sleep
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import Intents, Embed, Forbidden
+from discord import Intents, Embed, Forbidden, DMChannel
 from discord.ext.commands import Bot as BotOrigin, CommandNotFound, Context, BadArgument, MissingRequiredArgument, \
     CommandOnCooldown
 from datetime import datetime
@@ -95,10 +95,51 @@ class Bot(BotOrigin):
         else:
             print("[*] Bot has just reconnected")
 
-    async def on_message(self, message):
+    def update_db(self):
+        db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
+                     ((guild.id,) for guild in self.guilds))
 
+        db.multiexec("INSERT OR IGNORE INTO exp (UserID) VALUES (?)",
+                     ((member.id,) for member in self.guild.members if not member.bot))
+
+        to_remove = []
+        stored_members = db.column("SELECT UserID FROM exp")
+        for id_ in stored_members:
+            if not self.guild.get_member(id_):
+                to_remove.append(id_)
+
+        db.multiexec("DELETE FROM exp WHERE UserID = ?",
+                     ((id_,) for id_ in to_remove))
+
+        db.commit()
+
+    async def on_message(self, message):
         if not message.author.bot:
-            await self.process_commands(message)
+            if isinstance(message.channel, DMChannel):
+                if len(message.content) < 50:
+                    await message.channel.send("Hi there :wave: Your message should be at least 50 characters in "
+                                               "length.")
+
+                else:
+                    member = self.guild.get_member(message.author.id)
+                    embed = Embed(title="Mod Mails",
+                                  colour=member.colour,
+                                  timestamp=datetime.utcnow())
+
+                    embed.set_thumbnail(url=member.avatar_url)
+
+                    fields = [("Member", member.display_name, False),
+                              ("Message", message.content, False)]
+
+                    for name, value, inline in fields:
+                        embed.add_field(name=name, value=value, inline=inline)
+
+                    mod = self.get_cog("Mod")
+                    await mod.log_channel.send(embed=embed)
+                    await message.channel.send("Message relayed to moderators.")
+
+            else:
+                await self.process_commands(message)
 
     async def on_command_error(self, ctx, exc):
         if any([isinstance(exc, error) for error in IGNORE_EXC]):

@@ -1,11 +1,13 @@
 from os.path import isfile
 from sqlite3 import connect
+
 from apscheduler.triggers.cron import CronTrigger
 
-DATA_PATH = "./data/database/database.db"
+DB_PATH = "./data/database/database.db"
 BUILD_PATH = "./data/database/build.sql"
-connection = connect(DATA_PATH, check_same_thread=False)
-cursor = connection.cursor()
+
+cxn = connect(DB_PATH, check_same_thread=False)
+cur = cxn.cursor()
 
 
 def with_commit(func):
@@ -23,46 +25,50 @@ def build():
 
 
 def commit():
-    connection.commit()
+    cxn.commit()
 
 
-def autosave(s):
-    s.add_job(commit, CronTrigger(second=0))
+def autosave(sched):
+    sched.add_job(commit, CronTrigger(second=0))
 
 
 def close():
-    connection.close()
+    cxn.close()
 
 
 def field(command, *values):
-    connection.execute(command, tuple(values))
-    if (fetch := cursor.fetchone()) is not None:
+    cur.execute(command, tuple(values))
+
+    if (fetch := cur.fetchone()) is not None:
         return fetch[0]
 
 
 def record(command, *values):
-    connection.execute(command, tuple(values))
-    return cursor.fetchone()
+    cur.execute(command, tuple(values))
+
+    return cur.fetchone()
 
 
 def records(command, *values):
-    connection.execute(command, tuple(values))
-    return cursor.fetchall()
+    cur.execute(command, tuple(values))
+
+    return cur.fetchall()
 
 
-def columns(command, *values):
-    connection.execute(command, tuple(values))
-    return [item[0] for item in cursor.fetchall()]
+def column(command, *values):
+    cur.execute(command, tuple(values))
+
+    return [item[0] for item in cur.fetchall()]
 
 
 def execute(command, *values):
-    cursor.execute(command, tuple(values))
+    cur.execute(command, tuple(values))
 
 
 def multiexec(command, valueset):
-    cursor.executemany(command, valueset)
+    cur.executemany(command, valueset)
 
 
 def scriptexec(path):
     with open(path, "r", encoding="utf-8") as script:
-        cursor.executescript(script.read())
+        cur.executescript(script.read())
