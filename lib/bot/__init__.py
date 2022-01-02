@@ -1,8 +1,9 @@
 from asyncio import sleep
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import Intents, Embed
-from discord.ext.commands import Bot as BotOrigin, CommandNotFound
+from discord import Intents, Embed, Forbidden
+from discord.ext.commands import Bot as BotOrigin, CommandNotFound, Context, BadArgument, MissingRequiredArgument, \
+    CommandOnCooldown
 from datetime import datetime
 from ..database import database as db
 from glob import glob
@@ -16,6 +17,7 @@ OWNER_IDS = [797858811142340660,
              415389907523993601,
              453262739318767616]
 COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
+IGNORE_EXC = (CommandNotFound, BadArgument, MissingRequiredArgument)
 
 
 class Ready(object):
@@ -62,6 +64,15 @@ class Bot(BotOrigin):
         print("[+] Starting bot...")
         super().run(self.TOKEN, reconnect=True)
 
+    async def process_commands(self, message):
+        ctx = await self.get_context(message, cls=Context)
+
+        if ctx.command is not None and ctx.guild is not None:
+            if self.ready:
+                await self.invoke(ctx)
+            else:
+                pass  # Bot is not ready
+
     async def on_connect(self):
         print("[*] Bot is running...")
 
@@ -89,9 +100,29 @@ class Bot(BotOrigin):
         if not message.author.bot:
             await self.process_commands(message)
 
-    async def on_command_error(self, context, exception):
-        if not isinstance(exception, CommandNotFound):
-            await context.send("👷 This command is still in development, coming soon...")
+    async def on_command_error(self, ctx, exc):
+        if any([isinstance(exc, error) for error in IGNORE_EXC]):
+            pass
+
+        elif isinstance(exc, MissingRequiredArgument):
+            await ctx.send("One or more required arguments are missing.")
+
+        elif isinstance(exc, CommandOnCooldown):
+            await ctx.send(
+                f"That command is on {str(exc.cooldown.type).split('.')[-1]} cooldown. Try again in {exc.retry_after:,.2f} secs.")
+
+        elif hasattr(exc, "original"):
+            # if isinstance(exc.original, HTTPException):
+            # 	await ctx.send("Unable to send message.")
+
+            if isinstance(exc.original, Forbidden):
+                await ctx.send("I am sorry, I do not have permission to do that.")
+
+            else:
+                raise exc.original
+
+        else:
+            raise exc
 
     async def on_error(self, event_method, *args, **kwargs):
 
