@@ -1,10 +1,11 @@
 from os import getcwd
 
+import requests
 from discord import Embed, Colour, Member, File
 from discord.ext.commands import Cog, command, MissingRequiredArgument
 from aiohttp import request
 import wikipedia
-
+from lxml import html
 
 class Fun(Cog):
     def __init__(self, bot):
@@ -28,12 +29,28 @@ class Fun(Cog):
     @command(name="define", aliases=["whatis"])
     async def get_definition(self, ctx, *, x):
         embed = Embed(title=f"Definition for {x}",
-                      description=f"{wikipedia.summary(x, sentences=2)}",
+                      # description=f"{wikipedia.summary(x, sentences=2, auto_suggest=True)}",
+                      description=self.define_word(x),
                       colour=Colour.blue()
                       )
         embed.set_footer(text=f"Requested by {ctx.author.name}")
         embed.set_author(name="WikiMate", icon_url=self.bot.get_user(906195422224199732).avatar_url)
         await ctx.send(embed=embed)
+
+    async def define_word(self, word):
+        response = requests.get(
+            "http://dictionary.reference.com/browse/{}?s=t".format(word))
+        tree = html.fromstring(response.text)
+        title = tree.xpath('//title/text()')
+        print(title)
+        defs = tree.xpath('//div[@class="def-content"]/text()')
+        # print(defs)
+
+        defs = ''.join(defs)
+        defs = defs.split('\n')
+        defs = [d for d in defs if d]
+        for d in defs:
+            return d
 
     @get_definition.error
     async def define_error(self, ctx, exception):
