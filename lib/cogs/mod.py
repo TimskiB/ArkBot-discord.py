@@ -298,37 +298,6 @@ class Mod(Cog):
         profanity.load_censor_words_from_file("./data/profanity.txt")
         await ctx.send("Action complete.")
 
-    @command(name="verify", hidden=True)
-    @has_permissions(manage_guild=True)
-    async def ConfirmMessage(self, ctx):
-        embed = Embed(
-            description=f"React with the <:space_verify:927540434513821717> emoji to access the server.",
-            colour=Colour.blue()
-        )
-        verif = await self.bot.get_channel(912697602120757338).send(embed=embed)
-        emoji_id = self.bot.get_emoji(927540434513821717)
-        await verif.add_reaction(emoji_id)
-
-        def check(reaction, user):
-            if "916310252255850576" not in [y.id for y in user.roles] and\
-                    str(reaction.emoji) == '<:space_verify:927540434513821717>':
-                print("Worked")
-                return True
-            else:
-                print("Didnt work")
-                return False
-
-        while True:
-            try:
-                print("here")
-                reaction, user = await self.bot.wait_for("reaction_add", check=check, timeout=10)
-            except:
-                pass
-            else:
-                roleToAdd = get(ctx.guild.roles, name="Member")
-                memberToRemoveRole = get(ctx.guild.members, name=user.display_name)
-                await memberToRemoveRole.add_roles([roleToAdd])
-
 
     @Cog.listener()
     async def on_ready(self):
@@ -337,6 +306,32 @@ class Mod(Cog):
             self.mute_role = self.bot.guild.get_role(927478816463523860)
 
             self.bot.cogs_ready.ready_up("mod")
+
+            # embed = Embed(
+            #     description=f"React with the <:space_verify:927540434513821717> emoji to access the server.",
+            #     colour=Colour.blue()
+            # )
+            # verif = await self.bot.get_channel(912697602120757338).send(embed=embed)
+            # emoji_id = self.bot.get_emoji(927540434513821717)
+            # await verif.add_reaction(emoji_id)
+
+    @Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        user = self.bot.get_user(payload.user_id)
+        roles = self.bot.get_guild(payload.guild_id).roles
+        if user != self.bot.user:
+            try:
+                role = find(lambda r: r.name == 'Member', roles)
+                if role not in payload.member.roles and str(payload.emoji) == "<:space_verify:927540434513821717>":
+                    # and payload.member.id not in self.bot.owner_ids
+                    role_to_add = get(roles, name="Member")
+                    # memberToRemoveRole = get(reaction.guild.members, name=user.display_name)
+                    await payload.member.add_roles(role_to_add)
+
+
+
+            except Exception as e:
+                print(f"Didnt work ({e})")
 
     @Cog.listener()
     async def on_message(self, message):

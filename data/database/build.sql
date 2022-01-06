@@ -21,3 +21,9 @@ CREATE TABLE IF NOT EXISTS starboard (
 	StarMessageID integer,
 	Stars integer DEFAULT 1
 );
+
+CREATE TABLE IF NOT EXISTS invites (
+    InviteLink text PRIMARY KEY,
+    Used integer DEFAULT 0,
+    CreatorID integer
+);
