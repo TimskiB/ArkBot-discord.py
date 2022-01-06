@@ -90,13 +90,7 @@ class Bot(BotOrigin):
                 await sleep(0.5)
             print("[*] Bot is ready to operate...")
             self.log_channel = self.get_channel(922903725809471518)
-            # embed = Embed(
-            #     description=f"React with the <:space_verify:927540434513821717> emoji to access the server.",
-            #     colour=Colour.blue()
-            # )
-            # verif = await self.log_channel.send(embed=embed)
-            # emoji_id = self.get_emoji(927540434513821717)
-            # await verif.add_reaction(emoji_id)
+
 
             self.ready = True
 
