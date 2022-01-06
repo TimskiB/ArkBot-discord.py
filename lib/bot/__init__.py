@@ -78,7 +78,7 @@ class Bot(BotOrigin):
 
     async def on_disconnect(self):
         print("[-] Bot is disconnected...")
-        await self.log_channel.send("🔒 Bot is down for development...")
+        # await self.log_channel.send("🔒 Bot is down for development...")
 
     async def on_ready(self):
         if not self.ready:
@@ -169,6 +169,11 @@ class Bot(BotOrigin):
 
         if event_method == "on_command_error":
             await args[0].send("👷 Something went wrong, reporting...")
+            print("[-] Error:"
+                  f"\n\t{event_method}"
+                  f"\n\t{args}"
+                  f"\n\t{kwargs} ")
+
         else:
             await self.log_channel.send("❗ Error occurred, reporting to log...")
             print(f"[-] Error: {event_method} ({datetime.utcnow()}")

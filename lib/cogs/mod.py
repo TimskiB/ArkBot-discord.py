@@ -4,7 +4,7 @@ from re import search
 from typing import Optional
 
 from better_profanity import profanity
-from discord import Embed, Member, NotFound, Object
+from discord import Embed, Member, NotFound, Object, utils, Colour
 from discord.utils import find
 from discord.ext.commands import Cog, Greedy, Converter
 from discord.ext.commands import CheckFailure, BadArgument
@@ -166,12 +166,16 @@ class Mod(Cog):
         for target in targets:
             if not self.mute_role in target.roles:
                 if message.guild.me.top_role.position > target.top_role.position:
-                    role_ids = ",".join([str(r.id) for r in target.roles])
+                    try:
+                        role_ids = ",".join([str(r.id) for r in target.roles])
+                    except AttributeError:
+                        role_ids = ""
+                    print(f"roles: {role_ids}")
                     end_time = datetime.utcnow() + timedelta(seconds=hours) if hours else None
-
+                    print(f"end time: {end_time}")
                     database.execute("INSERT INTO mutes VALUES (?, ?, ?)",
-                               target.id, role_ids, getattr(end_time, "isoformat", lambda: None)())
-
+                                     target.id, role_ids, getattr(end_time, "isoformat", lambda: None)())
+                    print("added to db")
                     await target.edit(roles=[self.mute_role])
 
                     embed = Embed(title="Member muted",
@@ -210,6 +214,28 @@ class Mod(Cog):
             if len(unmutes):
                 await sleep(hours)
                 await self.unmute_members(ctx.guild, targets)
+        # guild = ctx.guild
+        # mutedRole = utils.get(guild.roles, name="Muted")
+        #
+        # if not mutedRole:
+        #     mutedRole = await guild.create_role(name="Muted")
+        #
+        #     for channel in guild.channels:
+        #         await channel.set_permissions(mutedRole, speak=False, send_messages=False,
+        #                                       read_message_history=True, read_messages=False)
+        # embed = Embed(title="User Muted", description=f"{targets.mention} was muted ",
+        #               colour=Colour.light_gray())
+        # embed.add_field(name="Reason:", value=reason, inline=False)
+        # await ctx.send(embed=embed)
+        # await targets.add_roles(mutedRole, reason=reason)
+        # await targets.send(f"Heya! You have been muted in {guild.name} (Reason: {reason})")
+
+    @mute_command.error
+    async def mute_error(self, ctx, exception):
+        await ctx.send("Oops. Seems like last command did not work well. Try again... ")
+        print("[-] Error occurred with the mute command.\n"
+              f"\tCall: {ctx.message}\n"
+              f"\tException: {exception}")
 
     @mute_command.error
     async def mute_command_error(self, ctx, exc):
@@ -274,8 +300,8 @@ class Mod(Cog):
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.ready:
-            self.log_channel = self.bot.get_channel(759432499221889034)
-            self.mute_role = self.bot.guild.get_role(653941858128494600)
+            self.log_channel = self.bot.get_channel(922914186009383012)
+            self.mute_role = self.bot.guild.get_role(927478816463523860)
 
             self.bot.cogs_ready.ready_up("mod")
 
