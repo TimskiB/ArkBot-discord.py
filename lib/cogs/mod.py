@@ -6,6 +6,8 @@ from typing import Optional
 from better_profanity import profanity
 from discord import Embed, Member, NotFound, Object, utils, Colour
 from discord.utils import find
+from discord import Embed, Member, NotFound, Object, Colour
+from discord.utils import find, get
 from discord.ext.commands import Cog, Greedy, Converter
 from discord.ext.commands import CheckFailure, BadArgument
 from discord.ext.commands import command, has_permissions, bot_has_permissions
@@ -175,7 +177,6 @@ class Mod(Cog):
                     print(f"end time: {end_time}")
                     database.execute("INSERT INTO mutes VALUES (?, ?, ?)",
                                      target.id, role_ids, getattr(end_time, "isoformat", lambda: None)())
-                    print("added to db")
                     await target.edit(roles=[self.mute_role])
 
                     embed = Embed(title="Member muted",
@@ -296,6 +297,38 @@ class Mod(Cog):
 
         profanity.load_censor_words_from_file("./data/profanity.txt")
         await ctx.send("Action complete.")
+
+    @command(name="verify", hidden=True)
+    @has_permissions(manage_guild=True)
+    async def ConfirmMessage(self, ctx):
+        embed = Embed(
+            description=f"React with the <:space_verify:927540434513821717> emoji to access the server.",
+            colour=Colour.blue()
+        )
+        verif = await self.bot.get_channel(912697602120757338).send(embed=embed)
+        emoji_id = self.bot.get_emoji(927540434513821717)
+        await verif.add_reaction(emoji_id)
+
+        def check(reaction, user):
+            if "916310252255850576" not in [y.id for y in user.roles] and\
+                    str(reaction.emoji) == '<:space_verify:927540434513821717>':
+                print("Worked")
+                return True
+            else:
+                print("Didnt work")
+                return False
+
+        while True:
+            try:
+                print("here")
+                reaction, user = await self.bot.wait_for("reaction_add", check=check, timeout=10)
+            except:
+                pass
+            else:
+                roleToAdd = get(ctx.guild.roles, name="Member")
+                memberToRemoveRole = get(ctx.guild.members, name=user.display_name)
+                await memberToRemoveRole.add_roles([roleToAdd])
+
 
     @Cog.listener()
     async def on_ready(self):

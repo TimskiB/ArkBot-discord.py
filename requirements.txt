@@ -6,3 +6,4 @@ aiosqlite==0.17.0
 requests==2.26.0
 wikipedia==1.4.0
 better_profanity==0.7.0
+lxml==4.7.1

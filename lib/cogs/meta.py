@@ -86,7 +86,7 @@ class Meta(Cog):
 
     @command(name="shutdown")
     @bot_has_permissions(manage_roles=True)
-    @has_permissions(manage_roles=True, manage_guild=True)
+    @has_permissions(manage_guild=True)
     async def shutdown(self, ctx):
         await ctx.send("Shutting down...")
 

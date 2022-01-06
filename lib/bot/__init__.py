@@ -1,7 +1,7 @@
 from asyncio import sleep
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import Intents, Embed, Forbidden, DMChannel
+from discord import Intents, Embed, Forbidden, DMChannel, Colour
 from discord.ext.commands import Bot as BotOrigin, CommandNotFound, Context, BadArgument, MissingRequiredArgument, \
     CommandOnCooldown
 from datetime import datetime
@@ -90,6 +90,8 @@ class Bot(BotOrigin):
                 await sleep(0.5)
             print("[*] Bot is ready to operate...")
             self.log_channel = self.get_channel(922903725809471518)
+
+
             self.ready = True
 
         else:
@@ -116,28 +118,8 @@ class Bot(BotOrigin):
     async def on_message(self, message):
         if not message.author.bot:
             if isinstance(message.channel, DMChannel):
-                if len(message.content) < 50:
-                    await message.channel.send("Hi there :wave: Your message should be at least 50 characters in "
-                                               "length.")
-
-                else:
-                    member = self.guild.get_member(message.author.id)
-                    embed = Embed(title="Mod Mails",
-                                  colour=member.colour,
-                                  timestamp=datetime.utcnow())
-
-                    embed.set_thumbnail(url=member.avatar_url)
-
-                    fields = [("Member", member.display_name, False),
-                              ("Message", message.content, False)]
-
-                    for name, value, inline in fields:
-                        embed.add_field(name=name, value=value, inline=inline)
-
-                    mod = self.get_cog("Mod")
-                    await mod.log_channel.send(embed=embed)
-                    await message.channel.send("Message relayed to moderators.")
-
+                # self.mod_mail(message)
+                pass
             else:
                 await self.process_commands(message)
 
@@ -176,7 +158,31 @@ class Bot(BotOrigin):
 
         else:
             await self.log_channel.send("❗ Error occurred, reporting to log...")
-            print(f"[-] Error: {event_method} ({datetime.utcnow()}")
+            print(f"[-] Error: {event_method} ({datetime.utcnow()})"
+                  f"\n\t{args}")
+
+    async def mod_mail(self, message):
+        if len(message.content) < 50:
+            await message.channel.send("Hi there :wave: Your message should be at least 50 characters in "
+                                       "length.")
+
+        else:
+            member = self.guild.get_member(message.author.id)
+            embed = Embed(title="Mod Mails",
+                          colour=member.colour,
+                          timestamp=datetime.utcnow())
+
+            embed.set_thumbnail(url=member.avatar_url)
+
+            fields = [("Member", member.display_name, False),
+                      ("Message", message.content, False)]
+
+            for name, value, inline in fields:
+                embed.add_field(name=name, value=value, inline=inline)
+
+            mod = self.get_cog("Mod")
+            await mod.log_channel.send(embed=embed)
+            await message.channel.send("Message relayed to moderators.")
 
 
 bot = Bot()
