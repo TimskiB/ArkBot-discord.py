@@ -1,5 +1,6 @@
 from asyncio import sleep
-
+import os
+from dotenv import load_dotenv
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord import Intents, Embed, Forbidden, DMChannel, Colour
 from discord.ext.commands import Bot as BotOrigin, when_mentioned_or
@@ -63,7 +64,9 @@ class Bot(BotOrigin):
     def run(self, version):
         self.VERSION = version
         self.setup()
-        with open("./lib/bot/token.0", encoding="utf-8") as my_token:
+        load_dotenv()
+        self.TOKEN = os.getenv('S')
+        with open("./lib/bot/.env", encoding="utf-8") as my_token:
             self.TOKEN = my_token.read()
 
         print("[+] Starting bot...")
