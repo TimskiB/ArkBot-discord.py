@@ -9,4 +9,4 @@ better_profanity==0.7.0
 lxml==4.7.1
 discord_components==2.1.2
 python-dotenv==0.19.2
-discord-ext-menus==1.0.0a31+gfbb8803
+discord-ext-menus==1.0.0
