@@ -10,3 +10,4 @@ lxml==4.7.1
 discord_components==2.1.2
 python-dotenv==0.19.2
 discord-ext-menus==1.0.0
+psutil==5.8.0
