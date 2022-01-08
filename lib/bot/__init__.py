@@ -17,7 +17,16 @@ OWNER_IDS = [797858811142340660,
              912678787999731773,
              415389907523993601,
              453262739318767616]
-COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
+
+
+def test(a):
+    print(a)
+    print(a.split("\\"))
+    print(a.split("\\")[-1])
+    return a.split("\\")[-1][:-3]
+
+
+COGS = [test(path) for path in glob("./lib/cogs/*.py")]
 IGNORE_EXC = (CommandNotFound, BadArgument, MissingRequiredArgument)
 
 
