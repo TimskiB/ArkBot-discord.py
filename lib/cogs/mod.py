@@ -303,11 +303,11 @@ class Mod(Cog):
         profanity.load_censor_words_from_file("./data/profanity.txt")
         await ctx.send("Action complete.")
 
-    @command(name="veriy")
+    @command(name="verify")
     @has_permissions(manage_guild=True)
     async def verify(self, ctx, *words):
         await ctx.send("React with the <:space_verify:> emoji to access the server.", components=[
-            [Button(label="Join", style=3, emoji="<:space_verify:>", custom_id="button1")]
+            [Button(label="Join", style=3, emoji=self.bot.get_emoji(927540434513821717), custom_id="button1")]
         ])
         while True:
             interaction = await self.bot.wait_for("button_click", check=lambda i: i.custom_id == "button1")
