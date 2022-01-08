@@ -59,7 +59,7 @@ class Bot(BotOrigin):
 
     def setup(self):
         for cog in COGS:
-            self.load_extension(f"{cog}.py")
+            self.load_extension(f"{cog}")
 
     def run(self, version):
         self.VERSION = version
