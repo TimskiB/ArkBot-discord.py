@@ -99,20 +99,20 @@ class Log(Cog):
 
                 await self.log_channel.send(embed=embed)
 
-    @Cog.listener()
-    async def on_message_delete(self, message):
-        if not message.author.bot:
-            embed = Embed(title="Message deletion (THIS AN EXPERIMENTAL FEATURE)",
-                          description=f"Action by {message.author.display_name}.",
-                          colour=message.author.colour,
-                          timestamp=datetime.utcnow())
-
-            fields = [("Content", message.content, False)]
-
-            for name, value, inline in fields:
-                embed.add_field(name=name, value=value, inline=inline)
-
-            await self.log_channel.send(embed=embed)
+    # @Cog.listener()
+    # async def on_message_delete(self, message):
+    #     if not message.author.bot:
+    #         embed = Embed(title="Message deletion (THIS AN EXPERIMENTAL FEATURE)",
+    #                       description=f"Action by {message.author.display_name}.",
+    #                       colour=message.author.colour,
+    #                       timestamp=datetime.utcnow())
+    #
+    #         fields = [("Content", message.content, False)]
+    #
+    #         for name, value, inline in fields:
+    #             embed.add_field(name=name, value=value, inline=inline)
+    #
+    #         await self.log_channel.send(embed=embed)
 
 
 def setup(bot):

@@ -2,7 +2,7 @@ from asyncio import sleep
 from datetime import datetime, timedelta
 from re import search
 from typing import Optional
-
+from discord_components import DiscordComponents, ComponentsBot, Button, SelectOption, Select
 from better_profanity import profanity
 from discord import Embed, Member, NotFound, Object, utils, Colour
 from discord.utils import find
@@ -37,7 +37,7 @@ class BannedUser(Converter):
 class Mod(Cog):
     def __init__(self, bot):
         self.bot = bot
-
+        DiscordComponents(self.bot)
         self.url_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
         self.links_allowed = (759432499221889034,)
         self.images_allowed = (759432499221889034,)
@@ -161,6 +161,11 @@ class Mod(Cog):
 
         else:
             await ctx.send("The limit provided is not within acceptable bounds.")
+
+    @clear_messages.error
+    async def clear_messages_error(self, ctx, exception):
+        print("Clear error:"
+              f"\n\tException: {exception}")
 
     async def mute_members(self, message, targets, hours, reason):
         unmutes = []
@@ -298,6 +303,15 @@ class Mod(Cog):
         profanity.load_censor_words_from_file("./data/profanity.txt")
         await ctx.send("Action complete.")
 
+    @command(name="veriy")
+    @has_permissions(manage_guild=True)
+    async def verify(self, ctx, *words):
+        await ctx.send("React with the <:space_verify:> emoji to access the server.", components=[
+            [Button(label="Join", style=3, emoji="<:space_verify:>", custom_id="button1")]
+        ])
+        while True:
+            interaction = await self.bot.wait_for("button_click", check=lambda i: i.custom_id == "button1")
+            await interaction.send(content="Button clicked!", ephemeral=False)
 
     @Cog.listener()
     async def on_ready(self):

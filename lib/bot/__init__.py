@@ -90,6 +90,7 @@ class Bot(BotOrigin):
 
             self.guild = self.get_guild(905040652251852820)
             self.scheduler.start()
+            self.update_db()
 
             while not self.cogs_ready.all_ready():
                 await sleep(0.5)
@@ -97,6 +98,15 @@ class Bot(BotOrigin):
             self.log_channel = self.get_channel(922903725809471518)
 
             self.ready = True
+
+            # await self.get_channel(912697379252224040).send("🔓 Bot is up from development...")
+            # embed = Embed(colour=Colour.blue(), title="Bot is online", description="Mate is currently running", timestamp=datetime.utcnow())
+            # embed.add_field(name="Change-log (VERSION 0.2)", value=read_changelog(), inline=True)
+            #
+            # user = self.get_user(383641902441824259)
+            # profilePicture = user.avatar_url
+            # embed.set_author(name="@Timski", icon_url=profilePicture)
+            # await self.get_channel(912697379252224040).send(embed=embed)
 
         else:
             print("[*] Bot has just reconnected")
@@ -151,19 +161,22 @@ class Bot(BotOrigin):
         else:
             raise exc
 
-    async def on_error(self, event_method, *args, **kwargs):
-
-        if event_method == "on_command_error":
-            await args[0].send("👷 Something went wrong, reporting...")
-            print("[-] Error:"
-                  f"\n\t{event_method}"
-                  f"\n\t{args}"
-                  f"\n\t{kwargs} ")
-
-        else:
-            await self.log_channel.send("❗ Error occurred, reporting to log...")
-            print(f"[-] Error: {event_method} ({datetime.utcnow()})"
-                  f"\n\t{args}")
+    # async def on_error(self, event_method, *args, **kwargs):
+    #
+    #     if event_method == "on_command_error":
+    #         await args[0].send("👷 Something went wrong, reporting...")
+    #         print("[-] Error:"
+    #               f"\n\t{event_method}"
+    #               f"\n\t{args}"
+    #               f"\n\t{kwargs} ")
+    #
+    #     else:
+    #
+    #         # await self.log_channel.send("❗ Error occurred, reporting to log...")
+    #         print(f"[-] Error: {event_method} ({datetime.utcnow()})"
+    #               f"\n\t{event_method}"
+    #               f"\n\t{args}"
+    #               f"\n\t{kwargs} ")
 
     async def mod_mail(self, message):
         if len(message.content) < 50:

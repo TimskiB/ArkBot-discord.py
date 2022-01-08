@@ -78,6 +78,11 @@ class Help(Cog):
             else:
                 await ctx.send("That command does not exist.")
 
+    @show_help.error
+    async def help_error(self, ctx, exception):
+        print("[-] Error occurred with help command"
+              f"\n\tException: {exception}")
+
     @Cog.listener()
     async def on_ready(self):
         if not self.bot.ready:

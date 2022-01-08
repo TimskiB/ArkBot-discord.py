@@ -24,18 +24,18 @@ class Reactions(Cog):
     async def on_ready(self):
         if not self.bot.ready:
             self.colours = {
-                "❤️": self.bot.guild.get_role(653940117680947232),  # Red
-                "💛": self.bot.guild.get_role(653940192780222515),  # Yellow
-                "💚": self.bot.guild.get_role(653940254293622794),  # Green
-                "💙": self.bot.guild.get_role(653940277761015809),  # Blue
-                "💜": self.bot.guild.get_role(653940305300815882),  # Purple
-                "🖤": self.bot.guild.get_role(653940328453373952),  # Black
+                "❤️": self.bot.guild.get_role(929372621055860746),  # Red
+                "💛": self.bot.guild.get_role(929372506731733002),  # Yellow
+                "💚": self.bot.guild.get_role(929372369095626752),  # Green
+                "💙": self.bot.guild.get_role(929372244696784937),  # Blue
+                "💜": self.bot.guild.get_role(929370865299247144),  # Purple
+                "🖤": self.bot.guild.get_role(929370484104110182),  # Black
             }
-            self.reaction_message = await self.bot.get_channel(759432499221889034).fetch_message(759434223802253362)
-            self.starboard_channel = self.bot.get_channel(759432499221889034)
+            self.reaction_message = await self.bot.get_channel(929369474853920858).fetch_message(929391904259461171)
+            self.starboard_channel = self.bot.get_channel(929369474853920858)
             self.bot.cogs_ready.ready_up("polls")
 
-    @command(name="createpoll", aliases=["mkpoll"], help="Not yet configured")
+    @command(name="createpoll", aliases=["mkpoll"], help="Not yet configured", description="Not yet configured")
     @has_permissions(manage_guild=True)
     async def create_poll(self, ctx, hours: int, question: str, *options):
         if len(options) > 10:
@@ -63,7 +63,7 @@ class Reactions(Cog):
             self.bot.scheduler.add_job(self.complete_poll, "date", run_date=datetime.now() + timedelta(seconds=hours),
                                        args=[message.channel.id, message.id])
 
-    @command(name="giveaway", help="Not yet configured")
+    @command(name="giveaway", help="Not yet configured", description="Not yet configured")
     @has_permissions(manage_guild=True)
     async def create_giveaway(self, ctx, mins: int, *, description: str):
         embed = Embed(title="Giveaway",

@@ -17,16 +17,15 @@ class Welcome(Cog):
     @Cog.listener()
     async def on_member_join(self, member):
         database.execute("INSERT INTO exp (UserID) VALUES (?)", member.id)
-        await self.bot.get_channel(906196703122702386).send(
-            f"Welcome to **{member.guild.name}** {member.mention}! Head over to <#626608699942764548> to say hi!")
-
+        # await self.bot.get_channel(906196703122702386).send(
+        #     f"Welcome to **{member.guild.name}** {member.mention}! Head over to <#626608699942764548> to say hi!")
         try:
             await member.send(f"Welcome to **{member.guild.name}**! Enjoy your stay!")
 
         except Forbidden:
             pass
 
-        await member.add_roles(member.guild.get_role(916310252255850576))
+        # await member.add_roles(member.guild.get_role(916310252255850576))
 
     @Cog.listener()
     async def on_member_remove(self, member):
