@@ -58,6 +58,7 @@ class Bot(BotOrigin):
         super().__init__(command_prefix=get_prefix, owner_ids=OWNER_IDS, intents=Intents.all())
 
     def setup(self):
+        print(COGS)
         for cog in COGS:
             self.load_extension(f"lib.cogs.{cog}")
 
@@ -66,8 +67,8 @@ class Bot(BotOrigin):
         self.setup()
         load_dotenv()
         self.TOKEN = os.getenv('S')
-        with open("./lib/bot/.env", encoding="utf-8") as my_token:
-            self.TOKEN = my_token.read()
+        # with open("./lib/bot/.env", encoding="utf-8") as my_token:
+        #     self.TOKEN = my_token.read()
 
         print("[+] Starting bot...")
         super().run(self.TOKEN, reconnect=True)
