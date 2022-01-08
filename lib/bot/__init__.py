@@ -23,7 +23,7 @@ OWNER_IDS = [797858811142340660,
 def test(a):
     head_tail = os.path.split(a)
     print(head_tail)
-    return head_tail[1]
+    return head_tail[1][:-3]
 
 
 if platform.system() == "Windows":
