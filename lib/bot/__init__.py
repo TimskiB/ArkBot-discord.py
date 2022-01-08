@@ -2,7 +2,7 @@ from asyncio import sleep
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord import Intents, Embed, Forbidden, DMChannel, Colour
-from discord.ext.commands import Bot as BotOrigin
+from discord.ext.commands import Bot as BotOrigin, when_mentioned_or
 from discord.ext.commands import CommandNotFound, Context, BadArgument, MissingRequiredArgument, CommandOnCooldown
 from datetime import datetime
 from ..database import database as db
@@ -18,6 +18,11 @@ OWNER_IDS = [797858811142340660,
              453262739318767616]
 COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
 IGNORE_EXC = (CommandNotFound, BadArgument, MissingRequiredArgument)
+
+
+def get_prefix(bot, message):
+    prefix = db.field("SELECT Prefix FROM guilds WHERE GuildID = ?", message.guild.id)
+    return when_mentioned_or(prefix)(bot, message)
 
 
 class Ready(object):
@@ -49,7 +54,7 @@ class Bot(BotOrigin):
         self.scheduler = AsyncIOScheduler()
         db.autosave(self.scheduler)
 
-        super().__init__(command_prefix=PREFIX, owner_ids=OWNER_IDS, intents=Intents.all())
+        super().__init__(command_prefix=get_prefix, owner_ids=OWNER_IDS, intents=Intents.all())
 
     def setup(self):
         for cog in COGS:
@@ -90,7 +95,6 @@ class Bot(BotOrigin):
                 await sleep(0.5)
             print("[*] Bot is ready to operate...")
             self.log_channel = self.get_channel(922903725809471518)
-
 
             self.ready = True
 
