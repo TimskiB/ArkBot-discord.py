@@ -1,3 +1,4 @@
+import platform
 from asyncio import sleep
 import os
 from dotenv import load_dotenv
@@ -20,13 +21,17 @@ OWNER_IDS = [797858811142340660,
 
 
 def test(a):
-    print(a)
-    print(a.split("\\"))
-    print(a.split("\\")[-1])
-    return a.split("\\")[-1][:-3]
+    head_tail = os.path.split(a)
+    print(head_tail)
+    return head_tail[1]
 
 
-COGS = [test(path) for path in glob("./lib/cogs/*.py")]
+if platform.system() == "Windows":
+    print("Windows")
+    COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
+else:
+    COGS = [test(path) for path in glob("./lib/cogs/*.py")]
+
 IGNORE_EXC = (CommandNotFound, BadArgument, MissingRequiredArgument)
 
 
