@@ -43,18 +43,48 @@ class HelpMenu(ListPageSource):
         return await self.write_page(menu, offset, fields)
 
 
+async def check_lvl_rewards(member, lvl):
+    if lvl >= 50:  # Red
+        if (new_role := member.guild.get_role(929372621055860746)) not in member.roles:
+            await member.add_roles(new_role)
+            await member.remove_roles(member.guild.get_role(929372506731733002))
+
+    elif 40 <= lvl < 50:  # Yellow
+        if (new_role := member.guild.get_role(929372506731733002)) not in member.roles:
+            await member.add_roles(new_role)
+            await member.remove_roles(member.guild.get_role(929372369095626752))
+
+    elif 30 <= lvl < 40:  # Green
+        if (new_role := member.guild.get_role(929372369095626752)) not in member.roles:
+            await member.add_roles(new_role)
+            await member.remove_roles(member.guild.get_role(929372244696784937))
+
+    elif 20 <= lvl < 30:  # Blue
+        if (new_role := member.guild.get_role(929372244696784937)) not in member.roles:
+            await member.add_roles(new_role)
+            await member.remove_roles(member.guild.get_role(929370865299247144))
+
+    elif 10 <= lvl < 20:  # Purple
+        if (new_role := member.guild.get_role(929370865299247144)) not in member.roles:
+            await member.add_roles(new_role)
+            await member.remove_roles(member.guild.get_role(929370484104110182))
+
+    elif 5 <= lvl < 9:  # Novice
+        if (new_role := member.guild.get_role(929370484104110182)) not in member.roles:
+            await member.add_roles(new_role)
+
+
 class Exp(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def process_xp(self, message):
+    async def process_xp(self, message, xp_to_add=randint(10, 20)):
         xp, lvl, xplock = database.record("SELECT XP, Level, XPLock FROM exp WHERE UserID = ?", message.author.id)
 
         if datetime.utcnow() > datetime.fromisoformat(xplock):
-            await self.add_xp(message, xp, lvl)
+            await self.add_xp(message, xp, lvl, xp_to_add)
 
-    async def add_xp(self, message, xp, lvl):
-        xp_to_add = randint(10, 20)
+    async def add_xp(self, message, xp, lvl, xp_to_add):
         new_lvl = int(((xp + xp_to_add) // 42) ** 0.55)
 
         database.execute("UPDATE exp SET XP = XP + ?, Level = ?, XPLock = ? WHERE UserID = ?",
@@ -62,37 +92,7 @@ class Exp(Cog):
 
         if new_lvl > lvl:
             await self.levelup_channel.send(f"Congrats {message.author.mention} - you reached level {new_lvl:,}!")
-            await self.check_lvl_rewards(message, new_lvl)
-
-    async def check_lvl_rewards(self, message, lvl):
-        if lvl >= 50:  # Red
-            if (new_role := message.guild.get_role(929372621055860746)) not in message.author.roles:
-                await message.author.add_roles(new_role)
-                await message.author.remove_roles(message.guild.get_role(929372506731733002))
-
-        elif 40 <= lvl < 50:  # Yellow
-            if (new_role := message.guild.get_role(929372506731733002)) not in message.author.roles:
-                await message.author.add_roles(new_role)
-                await message.author.remove_roles(message.guild.get_role(929372369095626752))
-
-        elif 30 <= lvl < 40:  # Green
-            if (new_role := message.guild.get_role(929372369095626752)) not in message.author.roles:
-                await message.author.add_roles(new_role)
-                await message.author.remove_roles(message.guild.get_role(929372244696784937))
-
-        elif 20 <= lvl < 30:  # Blue
-            if (new_role := message.guild.get_role(929372244696784937)) not in message.author.roles:
-                await message.author.add_roles(new_role)
-                await message.author.remove_roles(message.guild.get_role(929370865299247144))
-
-        elif 10 <= lvl < 20:  # Purple
-            if (new_role := message.guild.get_role(929370865299247144)) not in message.author.roles:
-                await message.author.add_roles(new_role)
-                await message.author.remove_roles(message.guild.get_role(929370484104110182))
-
-        elif 5 <= lvl < 9:  # Novice
-            if (new_role := message.guild.get_role(929370484104110182)) not in message.author.roles:
-                await message.author.add_roles(new_role)
+            await check_lvl_rewards(message.author, new_lvl)
 
     @command(name="level")
     async def display_level(self, ctx, target: Optional[Member]):
