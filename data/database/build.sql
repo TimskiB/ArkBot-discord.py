@@ -25,5 +25,6 @@ CREATE TABLE IF NOT EXISTS starboard (
 CREATE TABLE IF NOT EXISTS invites (
     InviteLink text PRIMARY KEY,
     Used integer DEFAULT 0,
-    CreatorID integer
+    CreatorID integer,
+    Code integer
 );

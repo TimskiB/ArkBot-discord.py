@@ -363,7 +363,7 @@ class Mod(Cog):
                     await sleep(5)
                     await self.unmute_members(message.guild, [message.author])
 
-            elif profanity.contains_profanity(message.content):
+            elif not is_admin(message.author) and profanity.contains_profanity(message.content):
                 await message.delete()
                 await message.channel.send("You can't use that word here.", delete_after=10)
 
@@ -376,7 +376,9 @@ class Mod(Cog):
         # 	and any([hasattr(a, "width") for a in message.attachments])):
         # 	await message.delete()
         # 	await message.channel.send("You can't send images here.", delete_after=10)
-
+    def is_admin(self, member):
+        """Checks if a member is an admin"""
+        return member.guild_permissions.administrator or member.id in self.bot.owner_ids
 
 def setup(bot):
     bot.add_cog(Mod(bot))
