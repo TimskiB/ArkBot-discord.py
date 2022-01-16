@@ -21,6 +21,27 @@ async def get_uses_by_code(all_invites, invite_code):
             return invite.uses
 
 
+
+def database_uses(invite_code):
+    """Get uses of an invite code from the database."""
+    uses = database.record("SELECT Used FROM invites WHERE Code = ?", invite_code)
+    return uses[0]
+
+
+async def current_uses(member, invite_code):
+    """Find the current uses of an invite code."""
+    for invite in await member.guild.invites():
+        if invite.code == invite_code:
+            return invite.uses
+
+
+async def invite_by_code(member, invite_code):
+    """Get invite object by code"""
+    for invite in await member.guild.invites():
+        if invite.code == invite_code:
+            return invite
+
+
 class Invite(Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -53,10 +74,12 @@ class Invite(Cog):
             "INSERT INTO invites (InviteLink, CreatorID, Code) VALUES (?, ?, ?)",
             url.url, ctx.author.id, url.code
         )
+        self.invites.append(url.code)
         database.commit()
 
     async def generate_unique_invite_url(self):
-        channel = self.bot.get_channel(912697602120757338)
+        # channel = self.bot.get_channel(912697602120757338)
+        channel = self.bot.get_channel(906194098900320349)  # TESTING
         invite = await channel.create_invite(max_age=0, unique=True)
         return invite
 
@@ -64,23 +87,28 @@ class Invite(Cog):
     async def on_member_join(self, member):
 
         invites_before_join = self.invites  # Codes
-        invites_after_join = await member.guild.invites()
+        invites_after_join = list(map(lambda x: x.code, await member.guild.invites()))  # Invites
 
-        for invite in invites_before_join:
-            if get_uses_by_code(await member.guild.invites(), invite) < find_invite_by_code(invites_after_join, invite):
-                database.execute("UPDATE invite SET CreatorID = ?, Uses = ? WHERE InviteLink = ?",
-                                 (member.id, invite.uses, invite.url))
+        for invite_code in invites_before_join:
+            # if get_uses_by_code(await member.guild.invites(), invite) < find_invite_by_code(invites_after_join,
+            # invite):
+            invite = await invite_by_code(member, invite_code)
+            if invite is not None:
+                if database_uses(invite_code) < invite.uses:
+                    print(f"{member.name} has joined with invite code {invite_code}")
+                    database.execute("UPDATE invites SET Used = ? WHERE InviteLink = ?",
+                                     invite.uses, invite.url,)
+                    creator_id = database.record("SELECT CreatorID FROM invites WHERE InviteLink = ?", invite.url)
+                    await self.ranks_channel.send(embed=Embed(
+                        title="Unique Invite Link Used",
+                        description=f"{member.mention} has joined the server and has used a unique invite link."
+                                    f"<@{invite.inviter.id}> has received XP and whitelist advantage.",
+                        color=Colour.green(),
+                    ))
+                    self.invites = invites_after_join
+                    await self.invite_xp_reward(invite.inviter)
 
-                await self.ranks_channel.send(embed=Embed(
-                    title="Unique Invite Link",
-                    description=f"{member.mention} has joined the server and has used a unique invite link."
-                                f"<@{invite.inviter.id}> has received XP and whitelist advantage.",
-                    color=Colour.green(),
-                ))
-                self.invites = invites_after_join
-                await self.invite_xp_reward(invite.inviter)
-
-                return
+                    return
 
     async def invite_xp_reward(self, member):
         xp, lvl, xplock = database.record("SELECT XP, Level, XPLock FROM exp WHERE UserID = ?", member.id)

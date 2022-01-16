@@ -31,7 +31,10 @@ class Reactions(Cog):
                 "💜": self.bot.guild.get_role(929370865299247144),  # Purple
                 "🖤": self.bot.guild.get_role(929370484104110182),  # Black
             }
-            self.reaction_message = await self.bot.get_channel(929369474853920858).fetch_message(930019683032236042)
+            try:
+                self.reaction_message = await self.bot.get_channel(929369474853920858).fetch_message(930019683032236042)
+            except:
+                self.reaction_message = None
             self.starboard_channel = self.bot.get_channel(929369474853920858)
             self.bot.cogs_ready.ready_up("polls")
 

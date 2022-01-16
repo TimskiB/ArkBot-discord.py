@@ -363,7 +363,7 @@ class Mod(Cog):
                     await sleep(5)
                     await self.unmute_members(message.guild, [message.author])
 
-            elif not is_admin(message.author) and profanity.contains_profanity(message.content):
+            elif not self.is_admin(message.author) and profanity.contains_profanity(message.content):
                 await message.delete()
                 await message.channel.send("You can't use that word here.", delete_after=10)
 
